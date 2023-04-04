@@ -1,0 +1,23 @@
+# https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frotend
+  namespace: default
+spec:
+  tls:
+  - hosts:
+      - abkhan.com
+    secretName: testsecret-tls
+  rules:
+  - host: abkhan.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-app 
+            port:
+              number: 80
