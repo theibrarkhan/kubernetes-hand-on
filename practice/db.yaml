@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  odoo-db
+  namespace: default
+  labels:
+    app:  odoo-db
+spec:
+  selector:
+    matchLabels:
+      app: odoo-db
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  odoo-db
+    spec:
+      containers:
+      - name:  mydb
+        image:  postgres:13
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: POSTGRES_DB
+          value: mydb
+        - name: POSTGRES_PASSWORD
+          value: myodoo
+        - name: POSTGRES_USER
+          value: odoo
+
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-db
+  namespace: default
+spec:
+  selector:
+    app: odoo-db
+  type: ClusterIP
+  ports:
+  - name: odoo
+    port: 5432
+    targetPort: 5432

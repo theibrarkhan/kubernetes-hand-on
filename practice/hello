@@ -1,0 +1,77 @@
+Researcher was finally able to deploy to the GPU namespace.. nothing I did to fix his last error.. but not hes having these errors.. LMK if you are familiar with it as this guys boss is hounding me to fix his employees issues.
+
+i tried deploying again, was able to deploy, but the pods were not starting, I am getting this issue now...
+(cde_sentiment_exp) sbenhu439@INSML-26937C6 sentiment_classifier_experimentation % kubectl get pods -n gpu
+NAME                                  READY   STATUS             RESTARTS      AGE
+sent-class-exp-gpu-68658ddb99-4w9zb   0/1     CrashLoopBackOff   4 (49s ago)   2m19s
+sent-class-exp-gpu-68658ddb99-8ppm9   0/1     CrashLoopBackOff   4 (39s ago)   2m19s
+sent-class-exp-gpu-68658ddb99-sxqp2   0/1     CrashLoopBackOff   4 (46s ago)   2m19s
+
+When I run kubectl describe..
+
+(cde_sentiment_exp) sbenhu439@INSML-26937C6 sentiment_classifier_experimentation % kubectl describe pod sent-class-exp-gpu-68658ddb99-4w9zb -n gpu
+Name:             sent-class-exp-gpu-68658ddb99-4w9zb
+Namespace:        gpu
+Priority:         0
+Service Account:  default
+Node:             ip-96-102-186-188.us-west-2.compute.internal/96.102.186.188
+Start Time:       Mon, 27 Mar 2023 15:01:36 +0530
+Labels:           app=sent-class-exp-gpu
+                  pod-template-hash=68658ddb99
+Annotations:      <none>
+Status:           Running
+IP:               192.168.84.57
+IPs:
+  IP:           192.168.84.57
+Controlled By:  ReplicaSet/sent-class-exp-gpu-68658ddb99
+Containers:
+  sent-class-exp-gpu:
+    Container ID:   containerd://2a86a098e785cc36029516fc2e5ad572f21c53eb22c784a4b3d60637b558251f
+    Image:          hub.comcast.net/appliedai/cde-sentiment-classifier:v0.1
+    Image ID:       hub.comcast.net/appliedai/cde-sentiment-classifier@sha256:c95bc9d38ef3b522d335a3b92c9085fc589429ece7c0eb828209d9bd0e2a4d84
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       StartError
+      Message:      failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: environment variable value can't contain null(\x00): "AWS_KEY=�\x0f\x10�[\v�|X�����\x00��\x0e�k����q��\"qW": unknown
+      Exit Code:    128
+      Started:      Thu, 01 Jan 1970 05:30:00 +0530
+      Finished:     Mon, 27 Mar 2023 15:04:40 +0530
+    Ready:          False
+    Restart Count:  5
+    Limits:
+      cpu:  2
+    Requests:
+      cpu:  1
+    Environment:
+      AWS_ID:   <set to the key 'AWS_ID' in secret 'aws-credentials-secret'>   Optional: false
+      AWS_KEY:  <set to the key 'AWS_KEY' in secret 'aws-credentials-secret'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ljxrq (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:
+  kube-api-access-ljxrq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              node-type=gpu
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                     From               Message
+  ----     ------     ----                    ----               -------
+  Normal   Scheduled  4m12s                   default-scheduler  Successfully assigned gpu/sent-class-exp-gpu-68658ddb99-4w9zb to ip-96-102-186-188.us-west-2.compute.internal
+  Normal   Pulled     2m42s (x5 over 4m11s)   kubelet            Container image "hub.comcast.net/appliedai/cde-sentiment-classifier:v0.1" already present on machine
+  Normal   Created    2m42s (x5 over 4m11s)   kubelet            Created container sent-class-exp-gpu
+  Warning  Failed     2m42s (x5 over 4m11s)   kubelet            Error: failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: environment variable value can't contain null(\x00): "AWS_ID=\x01\"\x00av\x03/q��Q6T��": unknown
+  Warning  BackOff    2m28s (x10 over 4m10s)  kubelet            Back-off restarting failed container

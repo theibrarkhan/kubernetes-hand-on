@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  oddofrontend
+  namespace: default
+  labels:
+    app:  oddofrontend
+spec:
+  selector:
+    matchLabels:
+      app: oddofrontend
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  oddofrontend
+    spec:
+      containers:
+      - name:  odoo
+        image:  odoo:14.0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: HOST
+          value: odoo-db
+        - name: USER
+          value: odoo
+        - name: PASSWORD
+          value: myodoo
+        ports:
+        - containerPort:  8069
+          name:  odoo
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoofrontend-svc
+  namespace: default
+spec:
+  selector:
+    app: oddofrontend
+  type: ClusterIP
+  ports:
+  - name: odoo
+    protocol: TCP
+    port: 8069
+    targetPort: 8069
