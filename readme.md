@@ -21,5 +21,3 @@ kubectl get storageclass
 
 note the name of your storageclass and add that to your application
 ```
-
-
